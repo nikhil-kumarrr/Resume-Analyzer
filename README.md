@@ -195,5 +195,5 @@ Available on Kaggle: https://www.kaggle.com/datasets/snehaanbhawal/resume-datase
 ## Screenshots
 
 <!-- Add your screenshots here -->
-![img alt]()
-![img alt]()
+![img alt](https://github.com/nikhil-kumarrr/images/blob/main/Screenshot%202026-03-16%20003707.png?raw=true)
+![img alt](https://github.com/nikhil-kumarrr/images/blob/main/Screenshot%202026-03-16%20003757.png?raw=true)
