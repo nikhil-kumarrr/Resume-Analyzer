@@ -1,13 +1,19 @@
 import streamlit as st
 import re
-import joblib
+import io
 import numpy as np
 from pathlib import Path
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import nltk
 import pdfplumber
-import io
+
+try:
+    import joblib
+except ImportError:
+    import subprocess
+    subprocess.run(["pip", "install", "joblib"], check=True)
+    import joblib
 
 nltk.download('stopwords', quiet=True)
 nltk.download('wordnet',   quiet=True)
