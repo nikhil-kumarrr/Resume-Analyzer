@@ -3,31 +3,48 @@ import re
 import io
 import numpy as np
 from pathlib import Path
+import subprocess
+import sys
 
-import nltk
-nltk.download('stopwords', quiet=True)
-nltk.download('wordnet', quiet=True)
-nltk.download('punkt', quiet=True)
-nltk.download('punkt_tab', quiet=True)
+# ── Safe imports with auto-install ──────────────────────────────────────────
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package, "-q"])
 
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-import pdfplumber
+try:
+    import nltk
+except ImportError:
+    install("nltk")
+    import nltk
+
+try:
+    import pdfplumber
+except ImportError:
+    install("pdfplumber")
+    import pdfplumber
 
 try:
     import joblib
 except ImportError:
-    import subprocess
-    subprocess.run(["pip", "install", "joblib"], check=True)
+    install("joblib")
     import joblib
 
-nltk.download('stopwords', quiet=True)
-nltk.download('wordnet',   quiet=True)
-nltk.download('punkt',     quiet=True)
+# ── NLTK data download ───────────────────────────────────────────────────────
+import os
+nltk_data_path = os.path.join(os.path.expanduser("~"), "nltk_data")
+os.makedirs(nltk_data_path, exist_ok=True)
+
+for corpus in ['stopwords', 'wordnet', 'punkt', 'punkt_tab', 'omw-1.4']:
+    try:
+        nltk.download(corpus, quiet=True, download_dir=nltk_data_path)
+    except Exception:
+        pass
+
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 
 st.set_page_config(
     page_title="Resume IQ",
-    page_icon="",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -77,17 +94,12 @@ section.main,
 [data-testid="stSidebar"] { display: none !important; }
 .block-container { padding: 0 3.5rem 6rem !important; max-width: 1240px !important; }
 
-/* ═══════════════════════════
-   NAVBAR
-═══════════════════════════ */
 .navbar {
     display: flex; align-items: center; justify-content: space-between;
     padding: 1.4rem 0 1.2rem; margin-bottom: 3rem;
     border-bottom: 1px solid var(--border);
 }
-.nav-logo {
-    display: flex; align-items: center; gap: 0.7rem;
-}
+.nav-logo { display: flex; align-items: center; gap: 0.7rem; }
 .nav-logo-mark {
     width: 36px; height: 36px;
     background: var(--grad);
@@ -119,12 +131,7 @@ section.main,
     background: #2563eb08; font-weight: 500;
 }
 
-/* ═══════════════════════════
-   HERO
-═══════════════════════════ */
-.hero {
-    padding: 1rem 0 2.5rem;
-}
+.hero { padding: 1rem 0 2.5rem; }
 .hero-chip {
     display: inline-flex; align-items: center; gap: 0.5rem;
     background: #2563eb0a; border: 1px solid #2563eb1e;
@@ -158,9 +165,6 @@ section.main,
     line-height: 1.7; max-width: 460px; font-weight: 400;
 }
 
-/* ═══════════════════════════
-   STAT CARDS — native metric
-═══════════════════════════ */
 [data-testid="stMetric"] {
     background: var(--bg2) !important;
     border: 1px solid var(--border) !important;
@@ -204,26 +208,14 @@ section.main,
 }
 [data-testid="stMetricDelta"] { display: none !important; }
 
-/* ═══════════════════════════
-   DIVIDER
-═══════════════════════════ */
 .div-line {
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--border2) 30%, var(--border2) 70%, transparent);
     margin: 0 0 2.8rem;
 }
 
-/* ═══════════════════════════
-   SECTION HEADING
-═══════════════════════════ */
-.sec-head {
-    display: flex; align-items: center; gap: 0.55rem;
-    margin-bottom: 1rem;
-}
-.sec-bar {
-    width: 3px; height: 16px;
-    background: var(--grad); border-radius: 100px;
-}
+.sec-head { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 1rem; }
+.sec-bar { width: 3px; height: 16px; background: var(--grad); border-radius: 100px; }
 .sec-lbl {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.6rem; font-weight: 500;
@@ -231,9 +223,6 @@ section.main,
     color: var(--text3);
 }
 
-/* ═══════════════════════════
-   INPUT PANEL
-═══════════════════════════ */
 .inp-panel {
     background: var(--bg2);
     border: 1px solid var(--border);
@@ -248,9 +237,6 @@ section.main,
     background: var(--grad);
 }
 
-/* ═══════════════════════════
-   STREAMLIT ELEMENTS
-═══════════════════════════ */
 .stTextArea > label { display: none !important; }
 .stTextArea textarea {
     background: var(--bg3) !important;
@@ -269,9 +255,7 @@ section.main,
     box-shadow: 0 0 0 4px #2563eb0e !important;
     outline: none !important;
 }
-.stTextArea textarea::placeholder {
-    color: var(--text3) !important; font-style: italic;
-}
+.stTextArea textarea::placeholder { color: var(--text3) !important; font-style: italic; }
 
 .stFileUploader > label { display: none !important; }
 [data-testid="stFileUploader"] {
@@ -297,7 +281,6 @@ section.main,
     font-size: 0.8rem !important; font-weight: 500 !important;
 }
 
-/* Primary button */
 [data-testid="stButton"] button[kind="primary"] {
     background: var(--grad) !important;
     color: #fff !important; border: none !important;
@@ -316,7 +299,6 @@ section.main,
     box-shadow: 0 8px 32px #2563eb35 !important;
 }
 
-/* Ghost buttons */
 .stButton > button {
     background: var(--bg2) !important;
     color: var(--text2) !important;
@@ -335,7 +317,6 @@ section.main,
     color: var(--blue) !important;
 }
 
-/* Tabs */
 [data-baseweb="tab-list"] {
     background: var(--bg3) !important;
     border: 1px solid var(--border) !important;
@@ -361,18 +342,12 @@ section.main,
     font-weight: 500 !important;
 }
 
-/* Progress bar */
 [data-testid="stProgressBar"] > div {
     background: var(--bg3) !important;
     border-radius: 100px !important; height: 6px !important;
 }
-[data-testid="stProgressBar"] > div > div {
-    border-radius: 100px !important;
-}
+[data-testid="stProgressBar"] > div > div { border-radius: 100px !important; }
 
-/* ═══════════════════════════
-   RESULT PANEL
-═══════════════════════════ */
 .res-panel-head {
     display: flex; align-items: center; justify-content: space-between;
     padding: 0.9rem 1.4rem;
@@ -393,7 +368,6 @@ section.main,
     padding: 0.14rem 0.6rem; border-radius: 100px;
 }
 
-/* Individual result card */
 .rcard {
     background: var(--bg2);
     border: 1px solid var(--border);
@@ -423,7 +397,6 @@ section.main,
     font-size: 0.56rem; color: var(--text3);
     letter-spacing: 0.14em; text-transform: uppercase;
 }
-.rcard-best .rcard-num { color: var(--blue); opacity: 0.65; }
 .rcard-pill {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.5rem; color: var(--green);
@@ -437,11 +410,6 @@ section.main,
     color: var(--text1); letter-spacing: -0.025em;
     margin-bottom: 0.1rem;
 }
-.rcard-best .rcard-name {
-    background: var(--grad);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent; background-clip: text;
-}
 .rcard-conf-row {
     display: flex; justify-content: space-between;
     align-items: center; margin-top: 0.3rem;
@@ -450,12 +418,8 @@ section.main,
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.6rem; color: var(--text3);
 }
-.rcard-conf-val {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.88rem; font-weight: 700;
-}
+.rcard-conf-val { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 700; }
 
-/* meta strip */
 .meta-strip {
     display: grid; grid-template-columns: repeat(4,1fr);
     border: 1px solid var(--border);
@@ -469,13 +433,9 @@ section.main,
     font-size: 0.52rem; color: var(--text3);
     letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.22rem;
 }
-.ms-v {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.88rem; font-weight: 600; color: var(--text2);
-}
+.ms-v { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--text2); }
 .ms-ok { color: var(--green); }
 
-/* info / error */
 .ib { border-radius: 10px; padding: 0.75rem 1rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.68rem; line-height: 1.6; margin-top: 0.8rem; }
@@ -483,7 +443,6 @@ section.main,
 .ib-ok strong { color: var(--green); }
 .ib-err { background:#ef444408; border:1px solid #ef444420; color:#b91c1c; }
 
-/* empty state */
 .empty {
     padding: 3.5rem 2rem; text-align: center;
     border: 1.5px dashed var(--border2);
@@ -494,7 +453,6 @@ section.main,
 .empty-t2 { font-family:'JetBrains Mono',monospace; font-size:0.62rem;
              color:var(--text3); opacity:0.5; line-height:1.9; }
 
-/* footer */
 .footer {
     text-align: center; padding: 1.5rem 0 0.5rem;
     font-family: 'JetBrains Mono', monospace;
@@ -511,7 +469,14 @@ section.main,
 # ── Backend ───────────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_nltk_resources():
-    return WordNetLemmatizer(), set(stopwords.words('english'))
+    try:
+        lem = WordNetLemmatizer()
+        sw = set(stopwords.words('english'))
+        return lem, sw
+    except LookupError:
+        for corpus in ['stopwords', 'wordnet', 'punkt', 'punkt_tab', 'omw-1.4']:
+            nltk.download(corpus, quiet=True)
+        return WordNetLemmatizer(), set(stopwords.words('english'))
 
 lemmatizer, STOPS = load_nltk_resources()
 
@@ -564,7 +529,7 @@ PROG_COLORS = {
 st.markdown("""
 <div class="navbar">
   <div class="nav-logo">
-    <div class="nav-logo-mark"></div>
+    <div class="nav-logo-mark">🧠</div>
     <div class="nav-logo-text">Resume<span>IQ</span></div>
   </div>
   <div class="nav-right">
@@ -631,7 +596,7 @@ with c_left:
 
     st.markdown('<div class="inp-panel">', unsafe_allow_html=True)
 
-    tab1, tab2 = st.tabs([" Paste Text", "⬆  Upload PDF"])
+    tab1, tab2 = st.tabs(["📋 Paste Text", "⬆ Upload PDF"])
     resume_text = ""
 
     with tab1:
@@ -643,7 +608,7 @@ with c_left:
 
     with tab2:
         up = st.file_uploader("u", type=["pdf"],
-                              label_visibility="collapsed", key="pdf")
+                              label_visibility="collapsed", key="pdf_upload")
         if up:
             with st.spinner("Parsing PDF..."):
                 pt = extract_pdf_text(up)
@@ -682,7 +647,6 @@ with c_right:
             tc       = len(preprocess(resume_text).split())
             top_conf = results[0]['confidence']
 
-        # Panel header
         st.markdown("""
         <div class="res-panel-head">
           <div class="res-panel-title">Top Matches</div>
@@ -693,10 +657,10 @@ with c_right:
         for r in results:
             is_best  = r['rank'] == 1
             ccls     = "rcard rcard-best" if is_best else "rcard"
-            ncls     = "rcard-name" + (" rcard-best" if is_best else "")
             badge    = '<span class="rcard-pill">✓ Best Match</span>' if is_best else ""
             _, cval  = PROG_COLORS[r['rank']]
             conf     = r['confidence']
+            name_style = "background:linear-gradient(135deg,#2563eb,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text" if is_best else ""
 
             st.markdown(f"""
             <div class="{ccls}">
@@ -704,8 +668,7 @@ with c_right:
                 <span class="rcard-num">Match #{r['rank']}</span>
                 {badge}
               </div>
-              <div class="rcard-name {'rcard-best' if is_best else ''}"
-                   style="{'background:linear-gradient(135deg,#2563eb,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text' if is_best else ''}">
+              <div class="rcard-name" style="{name_style}">
                 {r['category']}
               </div>
               <div class="rcard-conf-row">
@@ -717,7 +680,6 @@ with c_right:
 
             st.progress(int(conf))
 
-        # Meta strip
         st.markdown(f"""
         <div class="meta-strip">
           <div class="ms-cell">
@@ -748,7 +710,7 @@ with c_right:
     else:
         st.markdown("""
         <div class="empty">
-          <span class="empty-ico"></span>
+          <span class="empty-ico">🧠</span>
           <div class="empty-t1">No analysis yet</div>
           <div class="empty-t2">
             Paste or upload resume on the left<br>

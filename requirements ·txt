@@ -1,10 +1,6 @@
 streamlit
-pandas
-numpy
-scikit-learn
 nltk
-wordcloud
-matplotlib
-seaborn
 pdfplumber
 joblib
+numpy
+scikit-learn
