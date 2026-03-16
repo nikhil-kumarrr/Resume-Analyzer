@@ -2,13 +2,12 @@ import streamlit as st
 import re
 import io
 from pathlib import Path
-
-import pdfplumber
 import joblib
+from PyPDF2 import PdfReader
 
 st.set_page_config(
     page_title="Resume IQ",
-    page_icon="",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -100,7 +99,7 @@ html,body,[data-testid="stAppViewContainer"],[data-testid="stMain"],section.main
 """, unsafe_allow_html=True)
 
 
-# ── Preprocessing — NO NLTK, pure regex + basic stopwords ────────────────────
+# ── Preprocessing — NO NLTK ───────────────────────────────────────────────────
 STOPS = {
     'i','me','my','myself','we','our','ours','ourselves','you','your','yours',
     'yourself','yourselves','he','him','his','himself','she','her','hers',
@@ -128,8 +127,8 @@ def preprocess(text: str) -> str:
 
 def extract_pdf_text(f) -> str:
     try:
-        with pdfplumber.open(io.BytesIO(f.read())) as pdf:
-            return '\n'.join(p.extract_text() or '' for p in pdf.pages)
+        reader = PdfReader(io.BytesIO(f.read()))
+        return '\n'.join(page.extract_text() or '' for page in reader.pages)
     except Exception:
         return ''
 
@@ -160,7 +159,7 @@ COLORS = ['#2563eb', '#7c3aed', '#0ea5e9']
 st.markdown("""
 <div class="navbar">
   <div class="nav-logo">
-    <div class="nav-logo-mark"></div>
+    <div class="nav-logo-mark">🧠</div>
     <div class="nav-logo-text">Resume<span>IQ</span></div>
   </div>
   <div class="nav-right">
@@ -222,7 +221,7 @@ with c_left:
     """, unsafe_allow_html=True)
 
     st.markdown('<div class="inp-panel">', unsafe_allow_html=True)
-    tab1, tab2 = st.tabs([" Paste Text", "⬆ Upload PDF"])
+    tab1, tab2 = st.tabs(["📋 Paste Text", "⬆ Upload PDF"])
     resume_text = ""
 
     with tab1:
@@ -233,23 +232,30 @@ with c_left:
         )
 
     with tab2:
-        up = st.file_uploader("u", type=["pdf"], label_visibility="collapsed", key="pdf_up")
+        up = st.file_uploader("u", type=["pdf"],
+                              label_visibility="collapsed", key="pdf_up")
         if up:
             with st.spinner("Parsing PDF..."):
                 pt = extract_pdf_text(up)
             if pt.strip():
                 resume_text = pt
-                st.markdown(f"""<div class="ib ib-ok">
-                  ✓ <strong>Parsed</strong> — {len(pt.split()):,} words from <strong>{up.name}</strong>
+                st.markdown(f"""
+                <div class="ib ib-ok">
+                  ✓ <strong>Parsed</strong> — {len(pt.split()):,} words
+                  from <strong>{up.name}</strong>
                 </div>""", unsafe_allow_html=True)
             else:
-                st.markdown('<div class="ib ib-err">✕ No text found. Use a text-based PDF.</div>',
-                            unsafe_allow_html=True)
+                st.markdown(
+                    '<div class="ib ib-err">✕ No text found. Use a text-based PDF.</div>',
+                    unsafe_allow_html=True)
 
-    btn = st.button("Analyze Resume →", use_container_width=True, type="primary", key="go")
+    btn = st.button("Analyze Resume →",
+                    use_container_width=True,
+                    type="primary", key="go")
     st.markdown('</div>', unsafe_allow_html=True)
 
 
+# ── RESULTS ───────────────────────────
 with c_right:
     st.markdown("""
     <div class="sec-head"><div class="sec-bar"></div>
@@ -275,9 +281,11 @@ with c_right:
             badge      = '<span class="rcard-pill">✓ Best Match</span>' if is_best else ""
             cval       = COLORS[r['rank'] - 1]
             conf       = r['confidence']
-            name_style = ("background:linear-gradient(135deg,#2563eb,#0ea5e9);"
-                          "-webkit-background-clip:text;-webkit-text-fill-color:transparent;"
-                          "background-clip:text") if is_best else ""
+            name_style = (
+                "background:linear-gradient(135deg,#2563eb,#0ea5e9);"
+                "-webkit-background-clip:text;-webkit-text-fill-color:transparent;"
+                "background-clip:text"
+            ) if is_best else ""
 
             st.markdown(f"""
             <div class="{ccls}">
@@ -301,12 +309,15 @@ with c_right:
         </div>""", unsafe_allow_html=True)
 
     elif btn:
-        st.markdown('<div class="ib ib-err">✕ Please paste resume text or upload a PDF.</div>',
-                    unsafe_allow_html=True)
+        st.markdown(
+            '<div class="ib ib-err">✕ Please paste resume text or upload a PDF.</div>',
+            unsafe_allow_html=True)
     else:
         st.markdown("""
         <div class="empty">
-          <span class="empty-ico"></span>
+          <span class="empty-ico">🧠</span>
           <div class="empty-t1">No analysis yet</div>
-          <div class="empty-t2">Paste or upload resume on the left<br>then click Analyze Resume</div>
+          <div class="empty-t2">Paste or upload resume on the left<br>
+          then click Analyze Resume</div>
         </div>""", unsafe_allow_html=True)
+        
