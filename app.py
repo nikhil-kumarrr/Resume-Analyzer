@@ -8,7 +8,7 @@ import joblib
 
 st.set_page_config(
     page_title="Resume IQ",
-    page_icon="🧠",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -160,7 +160,7 @@ COLORS = ['#2563eb', '#7c3aed', '#0ea5e9']
 st.markdown("""
 <div class="navbar">
   <div class="nav-logo">
-    <div class="nav-logo-mark">🧠</div>
+    <div class="nav-logo-mark"></div>
     <div class="nav-logo-text">Resume<span>IQ</span></div>
   </div>
   <div class="nav-right">
@@ -222,7 +222,7 @@ with c_left:
     """, unsafe_allow_html=True)
 
     st.markdown('<div class="inp-panel">', unsafe_allow_html=True)
-    tab1, tab2 = st.tabs(["📋 Paste Text", "⬆ Upload PDF"])
+    tab1, tab2 = st.tabs([" Paste Text", "⬆ Upload PDF"])
     resume_text = ""
 
     with tab1:
@@ -306,7 +306,7 @@ with c_right:
     else:
         st.markdown("""
         <div class="empty">
-          <span class="empty-ico">🧠</span>
+          <span class="empty-ico"></span>
           <div class="empty-t1">No analysis yet</div>
           <div class="empty-t2">Paste or upload resume on the left<br>then click Analyze Resume</div>
         </div>""", unsafe_allow_html=True)
